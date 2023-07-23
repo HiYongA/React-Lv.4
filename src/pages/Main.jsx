@@ -1,21 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { __getDiaries } from "../redux/modules/diarySlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useQuery } from "react-query";
+import { getDiaries } from "../api/diaries";
 
 const Main = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const { data, isLoading, isError } = useSelector((state) => state.diary);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(__getDiaries());
-    };
-    fetchData();
-  }, [dispatch]);
+  const { data, isLoading, isError } = useQuery("diary", getDiaries);
 
   if (isLoading) {
     return <h1>로딩중</h1>;

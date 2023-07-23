@@ -1,13 +1,21 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { StyledSubmitButton } from "../components/Button";
-import { __addDiary } from "../redux/modules/diarySlice";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "react-query";
+import { addDiary } from "../api/diaries";
+import { type } from "@testing-library/user-event/dist/type";
 
 const Write = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
+  const addmutation = useMutation(addDiary, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("diary");
+    },
+  });
+
   const [mood, setMood] = useState(1);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -15,6 +23,18 @@ const Write = () => {
 
   const handleWriteButtonClick = (e) => {
     e.preventDefault();
+
+    if (!title || !content || !password) {
+      alert("필수 입력값이 없습니다. 확인해주세요!");
+      return false;
+    }
+
+    if ([1, 2, 3, 4, 5].some((item) => item === mood)) {
+      alert("오늘 기분은 1~5 중에 하나가 선택돼야 합니다. 확인해주세요.");
+
+      return false;
+    }
+
     // new Date().toLocaleDateString(): Date객체를 원하는 형식의 문자열로 변환해주는 함수
     // new Date().toLocaleDateString([locales[, options]])
     // locales: 선택적 매개변수로, 원하는 언어 또는 지역 설정을 지정
@@ -24,16 +44,15 @@ const Write = () => {
       day: "numeric", // 숫자 형태 7
       year: "numeric", // 숫자 형태 2023
     });
-    dispatch(
-      __addDiary({
-        moodCode: mood,
-        title,
-        body: content,
-        password,
-        isDeleted: false,
-        createdAt: formattedDate,
-      })
-    );
+    addmutation.mutate({
+      moodCode: mood,
+      title,
+      body: content,
+      password,
+      isDeleted: false,
+      createdAt: formattedDate,
+    });
+
     navigate("/");
     setMood(1);
     setTitle("");

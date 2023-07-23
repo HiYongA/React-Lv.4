@@ -1,31 +1,44 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { StyledSubmitButton } from "../components/Button";
-import { __deleteDiary, __updateDiary } from "../redux/modules/diarySlice";
+import { deleteDiary, getDiaries, updateDiary } from "../api/diaries";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 const Detail = () => {
   const { id } = useParams();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data } = useSelector((state) => state.diary);
+  const { data } = useQuery("diary", getDiaries);
 
   const diary = data.find((item) => item.id === Number(id));
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedMood, setEditedMood] = useState(diary.moodCode);
   const [editedBody, setEditedBody] = useState(diary.body);
+  const [confPw, setConfPw] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const updatemutation = useMutation(updateDiary, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("diary");
+    },
+  });
+
+  const deletemutation = useMutation(deleteDiary, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("diary");
+    },
+  });
 
   const handleSaveButtonClick = () => {
     // 서버에 업데이트할 내용 전송
-    dispatch(
-      __updateDiary({
-        id: diary.id,
-        moodCode: editedMood,
-        body: editedBody,
-      })
-    );
+    updatemutation.mutate({
+      id: diary.id,
+      moodCode: editedMood,
+      body: editedBody,
+    });
+
     setIsEditing(false);
   };
 
@@ -34,10 +47,22 @@ const Detail = () => {
   };
 
   const handleEditButtonClick = () => {
-    setIsEditing(true);
+    // 비밀번호 입력창 오픈
+    setConfPw(true);
   };
+
+  const handleConfPwSubmit = (pw) => {
+    if (diary.password === pw) {
+      // 비밀번호 일치 시 수정 상태로 전환
+      setIsEditing(true);
+      setConfPw(false);
+    } else {
+      alert("비밀번호가 올바르지 않습니다. 다시 입력해주세요.");
+    }
+  };
+
   const handleDeleteButtonClick = (id) => {
-    dispatch(__deleteDiary(id));
+    deletemutation.mutate(id);
     navigate("/");
   };
 
@@ -73,7 +98,9 @@ const Detail = () => {
         )}
       </StyledContent>
       <StyledButtonContainer>
-        {isEditing ? (
+        {confPw ? (
+          <ConfPwInputForm onSubmit={handleConfPwSubmit} />
+        ) : isEditing ? (
           <StyledButtonContainer>
             <StyledSubmitButton onClick={handleSaveButtonClick}>
               완료
@@ -96,6 +123,27 @@ const Detail = () => {
         )}
       </StyledButtonContainer>
     </StyledMain>
+  );
+};
+
+const ConfPwInputForm = ({ onSubmit }) => {
+  const [inputPw, setInputPw] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(inputPw);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="password"
+        value={inputPw}
+        onChange={(e) => setInputPw(e.target.value)}
+        placeholder="비밀번호를 입력하세요"
+      />
+      <StyledSubmitButton type="submit">확인</StyledSubmitButton>
+    </form>
   );
 };
 
