@@ -1,5 +1,112 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { StyledSubmitButton } from "../components/Button";
+import { __addDiary } from "../redux/modules/diarySlice";
+import { useNavigate } from "react-router-dom";
+
+const Write = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [mood, setMood] = useState(1);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleWriteButtonClick = (e) => {
+    e.preventDefault();
+    // new Date().toLocaleDateString(): Date객체를 원하는 형식의 문자열로 변환해주는 함수
+    // new Date().toLocaleDateString([locales[, options]])
+    // locales: 선택적 매개변수로, 원하는 언어 또는 지역 설정을 지정
+    // options: 선택적 매개변수로, 날짜를 원하는 형식으로 변환하기 위해 객체로 설정 가능
+    const formattedDate = new Date().toLocaleDateString("en-US", {
+      month: "long", // 월의 긴 형태 July
+      day: "numeric", // 숫자 형태 7
+      year: "numeric", // 숫자 형태 2023
+    });
+    dispatch(
+      __addDiary({
+        moodCode: mood,
+        title,
+        body: content,
+        password,
+        isDeleted: false,
+        createdAt: formattedDate,
+      })
+    );
+    navigate("/");
+    setMood(1);
+    setTitle("");
+    setContent("");
+    setPassword("");
+  };
+
+  const handleMoodChange = (e) => {
+    setMood(e.target.value);
+  };
+
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+  };
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  // useEffect(() => {
+  //   console.log("mood", mood);
+  // }, [mood]);
+
+  return (
+    <StyledMain>
+      <StyledTitle>Write Diary</StyledTitle>
+      <StyledDate>July 7, 2023</StyledDate>
+      <form onSubmit={handleWriteButtonClick}>
+        <StyledMoodLabel htmlFor="moodSelect">Mood:</StyledMoodLabel>
+        <StyledMoodSelect id="moodSelect" onChange={handleMoodChange}>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </StyledMoodSelect>
+
+        <StyledTitleLabel htmlFor="titleTextInput">Title:</StyledTitleLabel>
+        <StyledTitleInput
+          id="titleTextInput"
+          value={title}
+          onChange={handleTitleChange}
+        />
+        <StyledContentLabel htmlFor="contentTextarea">
+          Content:
+        </StyledContentLabel>
+        <StyledContentTextarea
+          id="contentTextarea"
+          value={content}
+          onChange={handleContentChange}
+        />
+
+        <StyledPasswordLabel htmlFor="passwordInput">
+          Password:
+        </StyledPasswordLabel>
+        <StyledPasswordInput
+          type="password"
+          id="passwordInput"
+          value={password}
+          onChange={handlePasswordChange}
+        />
+        <StyledSubmitButton>제출</StyledSubmitButton>
+      </form>
+    </StyledMain>
+  );
+};
+
+export default Write;
+
 const StyledMain = styled.main`
   flex: 1;
   padding: 20px;
@@ -29,6 +136,20 @@ const StyledMoodSelect = styled.select`
   font-size: 16px;
 `;
 
+const StyledTitleLabel = styled.label`
+  display: block;
+  margin-top: 20px;
+  font-size: 16px;
+  color: #293241;
+`;
+
+const StyledTitleInput = styled.input`
+  width: 100%;
+  height: 20px;
+  padding: 10px;
+  font-size: 16px;
+`;
+
 const StyledContentLabel = styled.label`
   display: block;
   margin-top: 20px;
@@ -53,34 +174,5 @@ const StyledPasswordLabel = styled.label`
 const StyledPasswordInput = styled.input`
   padding: 10px;
   font-size: 16px;
+  margin-right: 10px;
 `;
-
-const Write = () => {
-  return (
-    <StyledMain>
-      <StyledTitle>Write Diary</StyledTitle>
-      <StyledDate>July 7, 2023</StyledDate>
-
-      <StyledMoodLabel htmlFor="moodSelect">Mood:</StyledMoodLabel>
-      <StyledMoodSelect id="moodSelect">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-      </StyledMoodSelect>
-
-      <StyledContentLabel htmlFor="contentTextarea">
-        Content:
-      </StyledContentLabel>
-      <StyledContentTextarea id="contentTextarea" />
-
-      <StyledPasswordLabel htmlFor="passwordInput">
-        Password:
-      </StyledPasswordLabel>
-      <StyledPasswordInput type="password" id="passwordInput" />
-    </StyledMain>
-  );
-};
-
-export default Write;

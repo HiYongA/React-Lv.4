@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { __getDiaries } from "../redux/modules/diarySlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Main = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { data, isLoading, isError } = useSelector((state) => state.diary);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await dispatch(__getDiaries());
+    };
+    fetchData();
+  }, [dispatch]);
+
+  if (isLoading) {
+    return <h1>로딩중</h1>;
+  }
+
+  if (isError) {
+    return <h1>오류중</h1>;
+  }
 
   const handleDiaryItemClick = (id) => {
     navigate(`/detail/${id}`);
@@ -11,10 +31,13 @@ const Main = () => {
 
   return (
     <StyledMain>
-      {[...Array(10)].map((_, index) => (
-        <StyledDiaryBox key={index} onClick={handleDiaryItemClick}>
-          <StyledTitle>Diary {index + 1}</StyledTitle>
-          <StyledDate>July 7, 2023</StyledDate>
+      {data.map((item) => (
+        <StyledDiaryBox
+          key={item.id}
+          onClick={() => handleDiaryItemClick(item.id)}
+        >
+          <StyledTitle>{item.title}</StyledTitle>
+          <StyledDate>{item.createdAt}</StyledDate>
         </StyledDiaryBox>
       ))}
     </StyledMain>
