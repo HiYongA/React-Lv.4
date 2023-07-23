@@ -47,7 +47,7 @@ const Detail = () => {
   };
 
   const handleEditButtonClick = () => {
-    // 비밀번호 입력창 오픈
+    // 비밀번호 입력창 표시
     setConfPw(true);
   };
 
@@ -101,16 +101,16 @@ const Detail = () => {
         {confPw ? (
           <ConfPwInputForm onSubmit={handleConfPwSubmit} />
         ) : isEditing ? (
-          <StyledButtonContainer>
+          <>
             <StyledSubmitButton onClick={handleSaveButtonClick}>
               완료
             </StyledSubmitButton>
             <StyledSubmitButton onClick={handleCancelButtonClick}>
               취소
             </StyledSubmitButton>
-          </StyledButtonContainer>
+          </>
         ) : (
-          <StyledButtonContainer>
+          <>
             <StyledSubmitButton onClick={handleEditButtonClick}>
               수정
             </StyledSubmitButton>
@@ -119,7 +119,7 @@ const Detail = () => {
             >
               삭제
             </StyledSubmitButton>
-          </StyledButtonContainer>
+          </>
         )}
       </StyledButtonContainer>
     </StyledMain>
@@ -166,7 +166,7 @@ const StyledDate = styled.p`
   margin-top: 5px;
 `;
 
-const StyledMood = styled.p`
+const StyledMood = styled.div`
   font-size: 16px;
   margin-top: 10px;
   color: #293241;
