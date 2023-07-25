@@ -4,7 +4,6 @@ import { StyledSubmitButton } from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import { addDiary } from "../api/diaries";
-import { type } from "@testing-library/user-event/dist/type";
 
 const Write = () => {
   const navigate = useNavigate();

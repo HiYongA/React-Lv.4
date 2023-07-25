@@ -18,5 +18,15 @@
       "createdAt": "July 23, 2023",
       "id": 2
     }
+  ],
+  "nickname": [
+    {
+      "id": "test@test.com",
+      "nickname": "용아"
+    },
+    {
+      "id": "test1@test.com",
+      "nickname": "송주"
+    }
   ]
 }
